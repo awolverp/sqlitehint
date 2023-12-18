@@ -51,7 +51,7 @@ with conn.context(autocommit=True) as ctx:
 ```
 We set **autocommit** to True, so the context will commit at the end and we don't need to call `conn.commit()`.
 
-> [!WARNING]\
+> [!IMPORTANT]\
 > [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3): Notice that `?` placeholders are used to bind data to the query. Always use placeholders instead of string formatting to bind Python values to SQL statements, to avoid SQL injection attacks
 
 Now we can use `SELECT` query to verify that data was inserted.
