@@ -51,11 +51,13 @@ with conn.context(autocommit=True) as ctx:
 ```
 We set **autocommit** to True, so the context will commit at the end and we don't need to call `conn.commit()`.
 
+> [!WARNING]\
 > [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3): Notice that `?` placeholders are used to bind data to the query. Always use placeholders instead of string formatting to bind Python values to SQL statements, to avoid SQL injection attacks
 
 Now we can use `SELECT` query to verify that data was inserted.
 So we can call `conn.context()` again or **use old context**.
 
+> [!NOTE]\
 > Notice that **sqlitehint** uses **sqlitehint.RowModel** instead of tuple.
 
 Before creating context, we create an instance of *sqlitehint.RowModel* for *movie* table (*this is just for type hinting*).
@@ -212,7 +214,8 @@ You can use it as a subclass for typehinting like example.
 
 If you want to use it, when calling `Connection.context()`, just set `block` parameter to True.
 
-> **Threading Tip**: in threading, set journal_mode to 'WAL' and synchronous to 'NORMAL', that will improve database speed in threading.
+> [!TIP]\
+> In threading, set journal_mode to 'WAL' and synchronous to 'NORMAL', that will improve database speed in threading.
 
 For example:
 ```python
