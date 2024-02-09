@@ -4,7 +4,6 @@ import _thread
 
 
 class RowModel(_dbapi_core.Row):
-
     __slots__: tuple
 
     def __init_subclass__(cls) -> None:
@@ -38,7 +37,7 @@ class Cursor(_dbapi_core.Cursor, typing.Generic[_TT]):
     def selectmany(self, __sql: str, __parameters=(), size: int = -1) -> typing.List[_TT]:
         return self.execute(__sql, __parameters).fetchmany(size=size)
 
-    def selectone(self, __sql: str, __parameters=()) -> _TT:
+    def selectone(self, __sql: str, __parameters=()) -> typing.Optional[_TT]:
         return self.execute(__sql, __parameters).fetchone()
 
 
@@ -115,7 +114,7 @@ class Connection(_dbapi_core.Connection):
         begin: bool = False,
         autocommit: bool = False,
         isolation_level: typing.Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> TxContext[_TT]:
         return TxContext(
             self,

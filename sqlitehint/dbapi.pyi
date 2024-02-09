@@ -29,18 +29,7 @@ _TT = typing.TypeVar("_TT")
 
 class Cursor(sqlite3.Cursor, typing.Generic[_TT]):
     """
-    Transaction context for managing transactions.
-
-    Example::
-
-        transaction = connection.transaction()
-        ...
-        transaction.commit() # or transaction.rollback()
-        transaction.close()
-
-        # Or you can use with `with` statement:
-        with connection.transaction() as transaction:
-            ...
+    Cursor context for managing transactions.
     """
 
     def fetchall(self) -> list[_TT]:
@@ -50,11 +39,11 @@ class Cursor(sqlite3.Cursor, typing.Generic[_TT]):
         affect the performance of this operation.
         """
         ...
-    
+
     def fetchmany(self, size: int | None = ...) -> list[_TT]:
         """
         Return the next set of rows of a query result as a list. Return an empty list if no more rows are available.
-        
+
         The number of rows to fetch per call is specified by the size parameter. If size is not given, arraysize
         determines the number of rows to be fetched. If fewer than size rows are available, as many rows as are
         available are returned.
@@ -64,14 +53,14 @@ class Cursor(sqlite3.Cursor, typing.Generic[_TT]):
         then it is best for it to retain the same value from one fetchmany() call to the next.
         """
         ...
-    
+
     def fetchone(self) -> _TT:
         """
         If row_factory is None, return the next row query result set as a tuple. Else, pass it to the row factory
         and return its result. Return None if no more data is available.
         """
         ...
-    
+
     def __iter__(self) -> typing.Self: ...
     def __next__(self) -> _TT: ...
 
@@ -81,26 +70,26 @@ class Cursor(sqlite3.Cursor, typing.Generic[_TT]):
         It is a shorthand for `cursor.connection.rollback()`.
         """
         ...
-    
+
     def commit(self) -> None:
         """
         It is a shorthand for `cursor.connection.rollback()`.
         """
         ...
-    
+
     def selectall(self, __sql: str, __parameters=()) -> typing.List[_TT]:
         """
         It is a shorthand for `cursor.execute(__sql, __parameters).fetchall()`.
         """
         ...
-    
+
     def selectmany(self, __sql: str, __parameters=(), size: int = -1) -> typing.List[_TT]:
         """
         It is a shorthand for `cursor.execute(__sql, __parameters).fetchmany(size)`.
         """
         ...
-    
-    def selectone(self, __sql: str, __parameters=()) -> _TT:
+
+    def selectone(self, __sql: str, __parameters=()) -> typing.Optional[_TT]:
         """
         It is a shorthand for `cursor.execute(__sql, __parameters).fetchone()`.
         """
@@ -127,7 +116,7 @@ class TxContext(typing.Generic[_TT]):
         See `Connection.context()` for details.
         """
         ...
-    
+
     def make(self) -> Cursor[_TT]:
         """
         Initializes the context (and if the begin is True, creates a transaction) and returns the cursor.
@@ -152,7 +141,7 @@ class TxContext(typing.Generic[_TT]):
         Closes the context and cursor, (and ends the created transaction).
         """
         ...
-    
+
     def __enter__(self) -> Cursor[_TT]: ...
     def __exit__(self, __exc_type, __exc_value, __traceback): ...
 
@@ -176,7 +165,7 @@ class Connection(sqlite3.Connection):
             uri: bool = ...,
             autocommit: bool = ...,
             *,
-            context_block: bool = ...
+            context_block: bool = ...,
         ) -> None:
             """
             See `sqlitehint.connect()` for details.
@@ -194,7 +183,7 @@ class Connection(sqlite3.Connection):
             cached_statements: int = ...,
             uri: bool = ...,
             *,
-            context_block: bool = ...
+            context_block: bool = ...,
         ) -> None:
             """
             See `sqlitehint.connect()` for details.
@@ -211,12 +200,15 @@ class Connection(sqlite3.Connection):
     @typing.overload
     def context(
         self,
-        factory: typing.Union[typing.Type[_TT], typing.Callable[[sqlite3.Cursor, typing.Tuple[typing.Any, ...]], _TT]] = RowModel,
+        factory: typing.Union[
+            typing.Type[_TT],
+            typing.Callable[[sqlite3.Cursor, typing.Tuple[typing.Any, ...]], _TT],
+        ] = RowModel,
         begin: bool = False,
         autocommit: bool = False,
         isolation_level: typing.Optional[_IsolationLevel] = None,
         *,
-        block: bool = ...
+        block: bool = ...,
     ) -> TxContext[_TT]:
         """
         Creates a context and manage transactions.
@@ -226,10 +218,10 @@ class Connection(sqlite3.Connection):
 
             - begin (`bool`): If False, does not start a transaction, just returns the context.
                               If True, starts a transaction depends on isolation_level.
-            
+
             - autocommit (`bool`): If True, at the end of using context, it will automatically commits (or rollback)
                                    the connection. (ignore this parameter if 'begin' is True)
-            
+
             - isolation_level (`str`): If begin=True, the isolation level will use for creating transaction.
 
             - block (`bool`): (overrides the Connection.context_block) If True, and there is an another active transaction,
@@ -248,14 +240,13 @@ class Connection(sqlite3.Connection):
         autocommit: bool = False,
         isolation_level: typing.Optional[_IsolationLevel] = None,
         *,
-        block: bool = ...
+        block: bool = ...,
     ) -> TxContext[typing.Tuple]: ...
-
     def pragma(
         self,
         key: str,
         value: typing.Any = ...,
-        cursor: typing.Optional[sqlite3.Cursor] = None
+        cursor: typing.Optional[sqlite3.Cursor] = None,
     ) -> typing.Optional[typing.Tuple[typing.Any, ...]]:
         """
         Executes the PRAGMA statements.
@@ -274,7 +265,7 @@ class Connection(sqlite3.Connection):
         journal_mode: _JournalMode = ...,
         journal_size_limit: int = ...,
         synchronous: _Synchronous = ...,
-        cursor: typing.Optional[sqlite3.Cursor] = None
+        cursor: typing.Optional[sqlite3.Cursor] = None,
     ) -> typing.Self:
         """
         You can use it for change some connection settings and clean database to speed-up the database.
@@ -304,7 +295,7 @@ if sys.version_info >= (3, 12):
         uri: bool = ...,
         autocommit: bool = ...,
         *,
-        context_block: bool = ...
+        context_block: bool = ...,
     ) -> Connection: ...
 
 else:
@@ -319,7 +310,7 @@ else:
         cached_statements: int = ...,
         uri: bool = ...,
         *,
-        context_block: bool = ...
+        context_block: bool = ...,
     ) -> Connection: ...
 
 @typing.overload
@@ -362,7 +353,7 @@ def connect(*args, **kwargs) -> Connection:
         - autocommit (`bool` - New in version 3.12): Control PEP 249 transaction handling behaviour. autocommit currently
                                                      defaults to LEGACY_TRANSACTION_CONTROL. The default will change to
                                                      False in a future Python release.
-        
+
         - context_block (`bool`): Specifies the context blocking situation. If True, the `context()` block is True on default,
                                   And vice versa.
     """
